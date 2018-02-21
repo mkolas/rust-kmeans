@@ -1,0 +1,7 @@
+[package]
+name = "rust-kmeans"
+version = "0.1.0"
+authors = ["Max Kolasinski <kolasinskim@gmail.com>"]
+
+[dependencies]
+csv = "1.0.0-beta.3"
