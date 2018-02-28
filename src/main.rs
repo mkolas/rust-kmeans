@@ -1,8 +1,4 @@
-#[macro_use]
-extern crate serde_derive;
-
 extern crate csv;
-extern crate serde;
 
 use std::env;
 use std::process;
@@ -10,27 +6,31 @@ use std::error::Error;
 use std::ffi::OsString;
 
 
-#[derive(Serialize, Deserialize, Debug)]
-//#[serde(rename_all = "lowercase")]
+#[derive(Debug, Default)]
 struct Voter {
     // we'll store lat/long as x/y for simplicity's sake
     zip: String,
-    #[serde(rename = "long")]
     x: f64,
-    #[serde(rename = "lat")]
     y: f64,
     primary: i32,
     secondary: i32,
-
+    distances: Vec<f64>
 }
-fn run() -> Result<(), Box<Error>> {
-    let mut voters = Vec::new();
 
+
+fn run() -> Result<(), Box<Error>> {
+    let k = 14;
+    let mut voters = Vec::new();
     let file_path = get_first_arg()?;
 
     let mut reader = csv::Reader::from_path(file_path)?;
-    for result in reader.deserialize() {
-        let voter: Voter = result?;
+    for result in reader.records() {
+        let record = result?;
+        let zip = String::from(&record[0]);
+        let x: f64 = record[2].parse().unwrap();
+        let y: f64 = record[1].parse().unwrap();
+        let distances = vec![std::f64::INFINITY; k];
+        let mut voter = Voter{zip, x, y, distances, ..Default::default() };
         println!("{:?}", voter);
         voters.push(voter);
     }
@@ -44,6 +44,9 @@ fn get_first_arg() -> Result<OsString, Box<Error>> {
     }
 }
 
+//fn get_positive_infinity_vector(k: i32) -> Vec<i32> {
+//    vec![std::f64::INFINITY, k]
+//}
 fn main() {
     if let Err(err) = run() {
         println!("{}", err);
