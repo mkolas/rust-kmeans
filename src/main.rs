@@ -39,13 +39,23 @@ impl Voter {
 // Sorts by largest benefit of assigning to preferred to cluster
 impl Ord for Voter {
     fn cmp(&self, other: &Voter) -> Ordering {
-        self.priority().cmp(other.priority());
+        self.priority().partial_cmp(&other.priority()).unwrap()
     }
 }
 
-impl PartialOrd for Person {
-    fn
+impl PartialOrd for Voter {
+    fn partial_cmp(&self, other: &Voter) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
 }
+
+impl PartialEq for Voter {
+    fn eq(&self, other: &Voter) -> bool {
+        self.priority() == other.priority()
+    }
+}
+impl Eq for Voter {}
+
 
 fn calculate_dists(v: &Voter, centers:&Vec<Center>) -> Vec<f64> {
     let mut distances = Vec::new();
